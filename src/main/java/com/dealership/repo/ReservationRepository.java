@@ -12,4 +12,6 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
     Optional<Reservation> findByVehicle_IdAndStatus(UUID vehicleId, ReservationStatus status);
     List<Reservation> findAllByStatusAndExpiresAtBefore(ReservationStatus status, LocalDateTime time);
+    boolean existsByCustomer_IdAndStatus(UUID customerId, ReservationStatus status);
+    boolean existsByCustomer_Id(UUID customerId);
 }

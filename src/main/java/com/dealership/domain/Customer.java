@@ -24,6 +24,13 @@ public class Customer {
 
     private String phone;
 
+    // Extended info
+    private String passportNumber;
+    private String passportIssuedBy;
+    private java.time.LocalDate passportIssueDate;
+    @Column(columnDefinition = "text")
+    private String address;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public String getFirstName() { return firstName; }
@@ -34,4 +41,12 @@ public class Customer {
     public void setEmail(String email) { this.email = email; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+    public String getPassportNumber() { return passportNumber; }
+    public void setPassportNumber(String passportNumber) { this.passportNumber = passportNumber; }
+    public String getPassportIssuedBy() { return passportIssuedBy; }
+    public void setPassportIssuedBy(String passportIssuedBy) { this.passportIssuedBy = passportIssuedBy; }
+    public java.time.LocalDate getPassportIssueDate() { return passportIssueDate; }
+    public void setPassportIssueDate(java.time.LocalDate passportIssueDate) { this.passportIssueDate = passportIssueDate; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 }

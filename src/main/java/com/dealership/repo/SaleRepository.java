@@ -2,6 +2,7 @@ package com.dealership.repo;
 
 import com.dealership.domain.Sale;
 import com.dealership.domain.Vehicle;
+import com.dealership.domain.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,4 +18,6 @@ public interface SaleRepository extends JpaRepository<Sale, UUID> {
 
     @Query("select count(s) from Sale s")
     long countAll();
+
+    boolean existsByCustomer(Customer customer);
 }
