@@ -8,6 +8,7 @@ C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\serv
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\service\ReservationService.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\security\DbUserDetailsService.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\domain\Reservation.java
+C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\service\ReservationExpirationJob.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\domain\Customer.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\exception\ApiError.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\controller\SaleController.java
