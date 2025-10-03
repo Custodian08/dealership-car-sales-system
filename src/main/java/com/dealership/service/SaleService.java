@@ -5,11 +5,15 @@ import com.dealership.dto.SaleSummaryDto;
 import com.dealership.repo.ReservationRepository;
 import com.dealership.repo.SaleRepository;
 import com.dealership.repo.VehicleRepository;
+import com.dealership.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class SaleService {
@@ -58,6 +62,33 @@ public class SaleService {
         BigDecimal revenue = saleRepository.sumTotal();
         if (revenue == null) revenue = BigDecimal.ZERO;
         long count = saleRepository.countAll();
+        return new SaleSummaryDto(count, revenue);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Sale> list() {
+        return saleRepository.findAllByOrderBySaleDateDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public Sale getOrThrow(UUID id) {
+        return saleRepository.findById(id).orElseThrow(() -> new NotFoundException("Sale not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Sale> listBetween(LocalDate from, LocalDate to) {
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        return saleRepository.findAllBySaleDateBetweenOrderBySaleDateDesc(f, t);
+    }
+
+    @Transactional(readOnly = true)
+    public SaleSummaryDto summaryBetween(LocalDate from, LocalDate to) {
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        BigDecimal revenue = saleRepository.sumTotalBetween(f, t);
+        if (revenue == null) revenue = BigDecimal.ZERO;
+        long count = saleRepository.countBySaleDateBetween(f, t);
         return new SaleSummaryDto(count, revenue);
     }
 }

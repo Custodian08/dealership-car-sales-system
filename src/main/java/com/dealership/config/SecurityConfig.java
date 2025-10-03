@@ -43,6 +43,7 @@ public class SecurityConfig {
         UserDetails admin = User.withUsername("admin").password("{noop}admin").roles("ADMIN").build();
         UserDetails emp = User.withUsername("emp").password("{noop}emp").roles("EMPLOYEE").build();
         UserDetails guest = User.withUsername("guest").password("{noop}guest").roles("GUEST").build();
-        return new InMemoryUserDetailsManager(admin, emp, guest);
+        UserDetails accountant = User.withUsername("accountant").password("{noop}accountant").roles("ACCOUNTANT").build();
+        return new InMemoryUserDetailsManager(admin, emp, guest, accountant);
     }
 }
