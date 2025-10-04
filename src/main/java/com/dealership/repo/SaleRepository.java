@@ -41,4 +41,7 @@ public interface SaleRepository extends JpaRepository<Sale, UUID> {
 
     @Query("select distinct s.salespersonUsername from Sale s order by s.salespersonUsername")
     List<String> distinctSalespersons();
+
+    @Query("select s.salespersonUsername, count(s), coalesce(sum(s.price),0) from Sale s where s.saleDate between :from and :to group by s.salespersonUsername order by sum(s.price) desc")
+    java.util.List<Object[]> topSellers(LocalDateTime from, LocalDateTime to);
 }

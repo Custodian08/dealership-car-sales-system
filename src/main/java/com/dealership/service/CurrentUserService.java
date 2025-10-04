@@ -13,4 +13,13 @@ public class CurrentUserService {
         }
         return auth.getName();
     }
+
+    public boolean hasRole(String role) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return false;
+        String needle = role != null && role.startsWith("ROLE_") ? role : ("ROLE_" + role);
+        return auth.getAuthorities().stream().anyMatch(a -> needle.equalsIgnoreCase(a.getAuthority()));
+    }
+
+    public boolean isAdmin() { return hasRole("ADMIN"); }
 }

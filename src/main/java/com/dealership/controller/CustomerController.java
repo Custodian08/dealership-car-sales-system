@@ -21,13 +21,13 @@ public class CustomerController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','GUEST','LISTER','SALESPERSON','ACCOUNTANT')")
     public List<CustomerDto> list(@RequestParam(name = "query", required = false) String query) {
         return customerService.list(query).stream().map(CustomerController::toDto).toList();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','GUEST','LISTER','SALESPERSON','ACCOUNTANT')")
     public CustomerDto get(@PathVariable UUID id) {
         Customer c = customerService.getOrThrow(id);
         return toDto(c);

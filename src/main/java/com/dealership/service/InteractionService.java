@@ -42,8 +42,9 @@ public class InteractionService {
         if (from == null && to == null && type == null) {
             return listForCustomer(customerId);
         }
-        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
-        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        // Use DB-safe bounds (avoid LocalDate.MIN/MAX which overflow JDBC/DB timestamp range)
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.of(1970,1,1).atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.of(9999,12,31).atTime(23,59,59);
         if (type == null) {
             return interactionRepository.findByCustomer_IdAndOccurredAtBetweenOrderByOccurredAtDesc(customerId, f, t);
         }

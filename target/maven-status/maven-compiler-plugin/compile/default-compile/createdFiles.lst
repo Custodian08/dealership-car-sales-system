@@ -12,6 +12,7 @@ com\dealership\controller\SaleController.class
 com\dealership\controller\VehicleController.class
 com\dealership\repo\ReservationRepository.class
 com\dealership\domain\Customer.class
+com\dealership\service\VehicleService$1.class
 com\dealership\dto\SellRequest.class
 com\dealership\config\DataInitializer.class
 com\dealership\repo\SaleRepository.class

@@ -6,12 +6,11 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
@@ -39,11 +38,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public InMemoryUserDetailsManager users(PasswordEncoder encoder) {
-        UserDetails admin = User.withUsername("admin").password("{noop}admin").roles("ADMIN").build();
-        UserDetails emp = User.withUsername("emp").password("{noop}emp").roles("EMPLOYEE").build();
-        UserDetails guest = User.withUsername("guest").password("{noop}guest").roles("GUEST").build();
-        UserDetails accountant = User.withUsername("accountant").password("{noop}accountant").roles("ACCOUNTANT").build();
-        return new InMemoryUserDetailsManager(admin, emp, guest, accountant);
+    public JdbcUserDetailsManager users(DataSource dataSource) {
+        // Uses default Spring Security JDBC schema (tables users, authorities)
+        return new JdbcUserDetailsManager(dataSource);
     }
 }

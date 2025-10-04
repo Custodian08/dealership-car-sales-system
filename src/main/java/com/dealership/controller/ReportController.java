@@ -4,6 +4,7 @@ import com.dealership.dto.SaleSummaryDto;
 import com.dealership.dto.SaleDto;
 import com.dealership.service.SaleService;
 import com.dealership.service.PdfService;
+import com.dealership.service.VehicleService;
 import com.dealership.domain.Sale;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,20 +18,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
+import com.dealership.dto.TopSellerDto;
+import com.dealership.dto.InventoryValuationDto;
 
 @RestController
 @RequestMapping("/api/reports")
 public class ReportController {
     private final SaleService saleService;
     private final PdfService pdfService;
+    private final VehicleService vehicleService;
 
-    public ReportController(SaleService saleService, PdfService pdfService) {
+    public ReportController(SaleService saleService, PdfService pdfService, VehicleService vehicleService) {
         this.saleService = saleService;
         this.pdfService = pdfService;
+        this.vehicleService = vehicleService;
     }
 
     @GetMapping("/sales/summary")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
     public SaleSummaryDto summary(@RequestParam(required = false) LocalDate from,
                                   @RequestParam(required = false) LocalDate to,
                                   @RequestParam(required = false) String salesperson) {
@@ -95,6 +100,21 @@ public class ReportController {
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
     public List<String> listSalespersons() {
         return saleService.listSalespersons();
+    }
+
+    // Top sellers report
+    @GetMapping("/top-sellers")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    public List<TopSellerDto> topSellers(@RequestParam(required = false) LocalDate from,
+                                         @RequestParam(required = false) LocalDate to) {
+        return saleService.topSellers(from, to);
+    }
+
+    // Inventory valuation report
+    @GetMapping("/inventory/valuation")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','LISTER')")
+    public InventoryValuationDto inventoryValuation() {
+        return vehicleService.inventoryValuation();
     }
 
     private static String safe(String s) { return s == null ? "" : s; }

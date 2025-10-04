@@ -27,7 +27,7 @@ public class InteractionController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','SALESPERSON')")
     public List<InteractionDto> list(@PathVariable UUID customerId,
                                      @RequestParam(required = false) LocalDate from,
                                      @RequestParam(required = false) LocalDate to,
@@ -36,7 +36,7 @@ public class InteractionController {
     }
 
     @GetMapping(value = "/export.csv", produces = "text/csv")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','SALESPERSON')")
     public ResponseEntity<byte[]> exportCsv(@PathVariable UUID customerId,
                                             @RequestParam(required = false) LocalDate from,
                                             @RequestParam(required = false) LocalDate to,
@@ -59,21 +59,21 @@ public class InteractionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON')")
     public InteractionDto create(@PathVariable UUID customerId, @RequestBody @Validated InteractionDto req) {
         Interaction i = interactionService.create(customerId, req);
         return toDto(i);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON')")
     public InteractionDto update(@PathVariable UUID customerId, @PathVariable UUID id, @RequestBody @Validated InteractionDto req) {
         Interaction i = interactionService.update(customerId, id, req);
         return toDto(i);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON')")
     public ResponseEntity<Void> delete(@PathVariable UUID customerId, @PathVariable UUID id) {
         interactionService.delete(customerId, id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

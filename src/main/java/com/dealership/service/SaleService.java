@@ -2,9 +2,11 @@ package com.dealership.service;
 
 import com.dealership.domain.*;
 import com.dealership.dto.SaleSummaryDto;
+import com.dealership.dto.TopSellerDto;
 import com.dealership.repo.ReservationRepository;
 import com.dealership.repo.SaleRepository;
 import com.dealership.repo.VehicleRepository;
+import com.dealership.repo.SellerProfileRepository;
 import com.dealership.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,23 +25,31 @@ public class SaleService {
     private final ReservationRepository reservationRepository;
     private final CustomerService customerService;
     private final CurrentUserService currentUserService;
+    private final SellerProfileRepository sellerProfileRepository;
 
     public SaleService(SaleRepository saleRepository,
                        VehicleRepository vehicleRepository,
                        VehicleService vehicleService,
                        ReservationRepository reservationRepository,
                        CustomerService customerService,
-                       CurrentUserService currentUserService) {
+                       CurrentUserService currentUserService,
+                       SellerProfileRepository sellerProfileRepository) {
         this.saleRepository = saleRepository;
         this.vehicleRepository = vehicleRepository;
         this.vehicleService = vehicleService;
         this.reservationRepository = reservationRepository;
         this.customerService = customerService;
         this.currentUserService = currentUserService;
+        this.sellerProfileRepository = sellerProfileRepository;
     }
 
     @Transactional
     public Vehicle sell(UUID vehicleId, String customerEmail, BigDecimal price) {
+        return sell(vehicleId, customerEmail, price, null);
+    }
+
+    @Transactional
+    public Vehicle sell(UUID vehicleId, String customerEmail, BigDecimal price, String salespersonOverride) {
         Vehicle v = vehicleService.getOrThrow(vehicleId);
         if (v.getStatus() == VehicleStatus.SOLD) {
             throw new IllegalStateException("Vehicle already sold");
@@ -49,7 +59,12 @@ public class SaleService {
         Sale s = new Sale();
         s.setVehicle(v);
         s.setCustomer(customerService.getOrCreate(customerEmail, "", ""));
-        s.setSalespersonUsername(currentUserService.getCurrentUsername());
+        String actor = currentUserService.getCurrentUsername();
+        if (currentUserService.isAdmin() && salespersonOverride != null && !salespersonOverride.isBlank()) {
+            s.setSalespersonUsername(salespersonOverride);
+        } else {
+            s.setSalespersonUsername(actor);
+        }
         s.setPrice(price);
         saleRepository.save(s);
         v.setStatus(VehicleStatus.SOLD);
@@ -77,15 +92,15 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public List<Sale> listBetween(LocalDate from, LocalDate to) {
-        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
-        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.of(1970,1,1).atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.of(9999,12,31).atTime(23,59,59);
         return saleRepository.findAllBySaleDateBetweenOrderBySaleDateDesc(f, t);
     }
 
     @Transactional(readOnly = true)
     public SaleSummaryDto summaryBetween(LocalDate from, LocalDate to) {
-        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
-        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.of(1970,1,1).atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.of(9999,12,31).atTime(23,59,59);
         BigDecimal revenue = saleRepository.sumTotalBetween(f, t);
         if (revenue == null) revenue = BigDecimal.ZERO;
         long count = saleRepository.countBySaleDateBetween(f, t);
@@ -95,8 +110,8 @@ public class SaleService {
     // Salesperson-aware range listing
     @Transactional(readOnly = true)
     public List<Sale> listRange(LocalDate from, LocalDate to, String salesperson) {
-        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
-        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.of(1970,1,1).atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.of(9999,12,31).atTime(23,59,59);
         if (salesperson == null || salesperson.isBlank()) {
             if (from == null && to == null) return list();
             return saleRepository.findAllBySaleDateBetweenOrderBySaleDateDesc(f, t);
@@ -107,8 +122,8 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public SaleSummaryDto summaryRange(LocalDate from, LocalDate to, String salesperson) {
-        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
-        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.of(1970,1,1).atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.of(9999,12,31).atTime(23,59,59);
         BigDecimal revenue;
         long count;
         if (salesperson == null || salesperson.isBlank()) {
@@ -126,6 +141,31 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public java.util.List<String> listSalespersons() {
-        return saleRepository.distinctSalespersons();
+        java.util.Set<String> set = new java.util.LinkedHashSet<>();
+        // Default known sales-capable users
+        set.add("emp");
+        set.add("seller");
+        // From historical sales
+        set.addAll(saleRepository.distinctSalespersons());
+        // From seller profiles (admin-registered sellers)
+        for (com.dealership.domain.SellerProfile p : sellerProfileRepository.findAll()) {
+            if (p.getUsername() != null && !p.getUsername().isBlank()) set.add(p.getUsername());
+        }
+        return new java.util.ArrayList<>(set);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<TopSellerDto> topSellers(LocalDate from, LocalDate to) {
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.of(1970,1,1).atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.of(9999,12,31).atTime(23,59,59);
+        java.util.List<Object[]> rows = saleRepository.topSellers(f, t);
+        java.util.List<TopSellerDto> list = new java.util.ArrayList<>();
+        for (Object[] r : rows) {
+            String salesperson = (String) r[0];
+            long totalSales = ((Number) r[1]).longValue();
+            java.math.BigDecimal totalRevenue = (java.math.BigDecimal) r[2];
+            list.add(new TopSellerDto(salesperson, totalSales, totalRevenue));
+        }
+        return list;
     }
 }

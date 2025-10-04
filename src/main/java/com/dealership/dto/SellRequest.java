@@ -7,5 +7,6 @@ import java.math.BigDecimal;
 
 public record SellRequest(
         @Email @NotBlank String customerEmail,
-        @NotNull BigDecimal price
+        @NotNull BigDecimal price,
+        String salespersonUsername
 ) {}

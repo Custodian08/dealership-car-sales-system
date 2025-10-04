@@ -10,5 +10,6 @@ public record VehicleDto(
         String model,
         Integer year,
         String status,
-        BigDecimal price
+        BigDecimal price,
+        String lastSalesperson
 ) {}
