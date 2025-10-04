@@ -18,13 +18,13 @@ public class SellerProfileController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON','ACCOUNTANT','LISTER')")
     public List<SellerProfileDto> list() {
         return service.list();
     }
 
     @GetMapping("/{username}")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','SALESPERSON','ACCOUNTANT','LISTER')")
     public SellerProfileDto get(@PathVariable String username) {
         SellerProfileDto dto = service.get(username);
         if (dto == null) throw new IllegalArgumentException("Seller profile not found");
@@ -49,5 +49,11 @@ public class SellerProfileController {
                 body.contactName()
         );
         return service.upsert(fixed);
+    }
+
+    @DeleteMapping("/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void delete(@PathVariable String username) {
+        service.delete(username);
     }
 }

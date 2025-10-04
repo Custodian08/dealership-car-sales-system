@@ -50,15 +50,15 @@ public class SellerProfileService {
     public String displayName(String username) {
         if (username == null || username.isBlank()) return null;
         SellerProfileDto p = get(username);
-        if (p == null) return username;
+        if (p == null) return null; // profile deleted -> show blank in UI
         if (p.type() == SellerType.PERSON) {
             String fn = p.firstName() != null ? p.firstName() : "";
             String ln = p.lastName() != null ? p.lastName() : "";
             String full = (fn + " " + ln).trim();
-            return full.isBlank() ? username : full;
+            return full.isBlank() ? null : full;
         } else {
             String company = p.companyName();
-            return (company != null && !company.isBlank()) ? company : username;
+            return (company != null && !company.isBlank()) ? company : null;
         }
     }
 
@@ -76,5 +76,10 @@ public class SellerProfileService {
                 e.getAddress(),
                 e.getContactName()
         );
+    }
+
+    public void delete(String username) {
+        if (username == null || username.isBlank()) return;
+        repo.deleteById(username);
     }
 }

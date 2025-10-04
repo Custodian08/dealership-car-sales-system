@@ -35,7 +35,7 @@ public class ReportController {
     }
 
     @GetMapping("/sales/summary")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
     public SaleSummaryDto summary(@RequestParam(required = false) LocalDate from,
                                   @RequestParam(required = false) LocalDate to,
                                   @RequestParam(required = false) String salesperson) {
@@ -47,7 +47,7 @@ public class ReportController {
     }
 
     @GetMapping("/sales")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
     public List<SaleDto> list(@RequestParam(required = false) LocalDate from,
                               @RequestParam(required = false) LocalDate to,
                               @RequestParam(required = false) String salesperson) {
@@ -97,14 +97,14 @@ public class ReportController {
     }
 
     @GetMapping("/salespersons")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
     public List<String> listSalespersons() {
         return saleService.listSalespersons();
     }
 
     // Top sellers report
     @GetMapping("/top-sellers")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
     public List<TopSellerDto> topSellers(@RequestParam(required = false) LocalDate from,
                                          @RequestParam(required = false) LocalDate to) {
         return saleService.topSellers(from, to);

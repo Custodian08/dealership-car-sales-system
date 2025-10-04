@@ -14,5 +14,7 @@ public record VehicleUpsertRequest(
         @Positive(message = "Price must be positive")
         BigDecimal price,
         // Optional: if null, defaults to AVAILABLE
-        String status
+        String status,
+        @NotBlank(message = "Owner is required")
+        String ownerUsername
 ) {}

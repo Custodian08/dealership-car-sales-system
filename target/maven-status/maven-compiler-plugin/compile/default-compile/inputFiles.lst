@@ -4,9 +4,11 @@ C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\serv
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\repo\SaleRepository.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\domain\Interaction.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\service\ReservationService.java
+C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\controller\RegisterController.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\controller\SalesController.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\service\SellerProfileService.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\controller\SaleController.java
+C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\dto\RegisterRequest.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\controller\VehicleController.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\exception\NotFoundException.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\dto\VehicleDto.java
@@ -48,6 +50,7 @@ C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\cont
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\dto\MeDto.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\repo\UserRepository.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\domain\SellerProfile.java
+C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\config\SecurityDataInitializer.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\repo\ReservationRepository.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\service\InteractionService.java
 C:\Users\kiril\Desktop\Great\dealership-server\src\main\java\com\dealership\dto\CustomerUpsertRequest.java

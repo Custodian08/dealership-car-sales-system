@@ -31,7 +31,9 @@ public class ReservationController {
         Vehicle v = reservationService.reserve(id, req.customerEmail(), req.customerFirstName(), req.customerLastName(), req.deposit(), req.minutesToExpire());
         String username = saleRepository.findByVehicle(v).map(s -> s.getSalespersonUsername()).orElse(null);
         String lastSp = username != null ? sellerProfiles.displayName(username) : null;
-        return new VehicleDto(v.getId(), v.getVin(), v.getMake(), v.getModel(), v.getYear(), v.getStatus().name(), v.getPrice(), lastSp);
+        String owner = v.getOwnerUsername();
+        String ownerDisp = owner != null ? sellerProfiles.displayName(owner) : null;
+        return new VehicleDto(v.getId(), v.getVin(), v.getMake(), v.getModel(), v.getYear(), v.getStatus().name(), v.getPrice(), lastSp, owner, ownerDisp);
     }
 
     @PostMapping("/{id}/cancel-reservation")
@@ -40,6 +42,8 @@ public class ReservationController {
         Vehicle v = reservationService.cancel(id);
         String username = saleRepository.findByVehicle(v).map(s -> s.getSalespersonUsername()).orElse(null);
         String lastSp = username != null ? sellerProfiles.displayName(username) : null;
-        return new VehicleDto(v.getId(), v.getVin(), v.getMake(), v.getModel(), v.getYear(), v.getStatus().name(), v.getPrice(), lastSp);
+        String owner = v.getOwnerUsername();
+        String ownerDisp = owner != null ? sellerProfiles.displayName(owner) : null;
+        return new VehicleDto(v.getId(), v.getVin(), v.getMake(), v.getModel(), v.getYear(), v.getStatus().name(), v.getPrice(), lastSp, owner, ownerDisp);
     }
 }

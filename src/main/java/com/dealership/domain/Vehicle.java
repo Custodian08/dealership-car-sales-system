@@ -33,6 +33,9 @@ public class Vehicle {
     @NotNull
     private BigDecimal price = BigDecimal.ZERO;
 
+    @Column(name = "owner_username")
+    private String ownerUsername;
+
     @Version
     private Integer version;
 
@@ -52,4 +55,6 @@ public class Vehicle {
     public void setPrice(BigDecimal price) { this.price = price; }
     public Integer getVersion() { return version; }
     public void setVersion(Integer version) { this.version = version; }
+    public String getOwnerUsername() { return ownerUsername; }
+    public void setOwnerUsername(String ownerUsername) { this.ownerUsername = ownerUsername; }
 }

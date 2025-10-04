@@ -23,19 +23,15 @@ public class UsersService {
     }
 
     public List<UserAccountDto> list() {
-        // Fetch all usernames from DB-backed 'users' table
-        List<String> usernames = jdbc.query("select username from users order by username",
-                (rs, i) -> rs.getString(1));
+        // Fetch all usernames
+        List<String> usernames = jdbc.query("select username from users order by username", (rs, i) -> rs.getString(1));
         List<UserAccountDto> out = new ArrayList<>();
         for (String u : usernames) {
-            try {
-                UserDetails d = users.loadUserByUsername(u);
-                List<String> roles = d.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .map(a -> a.startsWith("ROLE_") ? a.substring(5) : a)
-                        .toList();
-                out.add(new UserAccountDto(u, roles));
-            } catch (Exception ignored) { /* skip */ }
+            List<String> roles = jdbc.query(
+                    "select authority from authorities where username = ? order by authority",
+                    (rs, i) -> rs.getString(1), u
+            ).stream().map(a -> a != null && a.startsWith("ROLE_") ? a.substring(5) : a).toList();
+            out.add(new UserAccountDto(u, roles));
         }
         return out;
     }

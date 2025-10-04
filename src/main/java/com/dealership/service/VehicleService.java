@@ -55,6 +55,7 @@ public class VehicleService {
         v.setModel(req.model());
         v.setYear(req.year());
         v.setPrice(req.price());
+        v.setOwnerUsername(req.ownerUsername());
         // status controlled by flows; if provided, respect only AVAILABLE
         v.setStatus(VehicleStatus.AVAILABLE);
         return vehicleRepository.save(v);
@@ -69,6 +70,9 @@ public class VehicleService {
         v.setModel(req.model());
         v.setYear(req.year());
         v.setPrice(req.price());
+        if (req.ownerUsername() != null && !req.ownerUsername().isBlank()) {
+            v.setOwnerUsername(req.ownerUsername());
+        }
         return vehicleRepository.save(v);
     }
 

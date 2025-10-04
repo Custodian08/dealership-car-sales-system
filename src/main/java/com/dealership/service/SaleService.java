@@ -60,11 +60,15 @@ public class SaleService {
         s.setVehicle(v);
         s.setCustomer(customerService.getOrCreate(customerEmail, "", ""));
         String actor = currentUserService.getCurrentUsername();
-        if (currentUserService.isAdmin() && salespersonOverride != null && !salespersonOverride.isBlank()) {
-            s.setSalespersonUsername(salespersonOverride);
+        String effectiveSalesperson;
+        if (salespersonOverride != null && !salespersonOverride.isBlank()) {
+            effectiveSalesperson = salespersonOverride;
+        } else if (v.getOwnerUsername() != null && !v.getOwnerUsername().isBlank()) {
+            effectiveSalesperson = v.getOwnerUsername();
         } else {
-            s.setSalespersonUsername(actor);
+            effectiveSalesperson = actor;
         }
+        s.setSalespersonUsername(effectiveSalesperson);
         s.setPrice(price);
         saleRepository.save(s);
         v.setStatus(VehicleStatus.SOLD);

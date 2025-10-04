@@ -31,6 +31,8 @@ public class SaleController {
         Vehicle v = saleService.sell(id, req.customerEmail(), req.price(), req.salespersonUsername());
         String username = saleRepository.findByVehicle(v).map(s -> s.getSalespersonUsername()).orElse(null);
         String lastSp = username != null ? sellerProfiles.displayName(username) : null;
-        return new VehicleDto(v.getId(), v.getVin(), v.getMake(), v.getModel(), v.getYear(), v.getStatus().name(), v.getPrice(), lastSp);
+        String owner = v.getOwnerUsername();
+        String ownerDisp = owner != null ? sellerProfiles.displayName(owner) : null;
+        return new VehicleDto(v.getId(), v.getVin(), v.getMake(), v.getModel(), v.getYear(), v.getStatus().name(), v.getPrice(), lastSp, owner, ownerDisp);
     }
 }

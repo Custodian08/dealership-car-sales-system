@@ -11,5 +11,7 @@ public record VehicleDto(
         Integer year,
         String status,
         BigDecimal price,
-        String lastSalesperson
+        String lastSalesperson,
+        String ownerUsername,
+        String ownerDisplay
 ) {}

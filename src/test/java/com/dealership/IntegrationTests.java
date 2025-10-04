@@ -27,10 +27,19 @@ class IntegrationTests {
 
     @Test
     void reserve_cancel_sell_and_reports() {
+        // ensure a seller profile exists for owner linkage
+        SellerProfileDto sp = new SellerProfileDto(
+                "seller",
+                com.dealership.domain.SellerType.PERSON,
+                null, null,
+                "Test", "Seller",
+                null, null, null, null, null
+        );
+        as("admin","admin").exchange("/api/sellers/seller", HttpMethod.PUT, new HttpEntity<>(sp), SellerProfileDto.class);
         // 1) Create a new vehicle as admin
         String vin = "TST-" + UUID.randomUUID();
         VehicleUpsertRequest vreq = new VehicleUpsertRequest(
-                vin, "TestMake", "TestModel", 2024, new BigDecimal("12345.67"), null
+                vin, "TestMake", "TestModel", 2024, new BigDecimal("12345.67"), null, "seller"
         );
         ResponseEntity<VehicleDto> vCreate = as("admin", "admin").postForEntity("/api/vehicles", vreq, VehicleDto.class);
         assertThat(vCreate.getStatusCode().is2xxSuccessful()).isTrue();
