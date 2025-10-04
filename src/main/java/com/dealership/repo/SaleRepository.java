@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface SaleRepository extends JpaRepository<Sale, UUID> {
     Optional<Sale> findByVehicle(Vehicle vehicle);
@@ -30,4 +31,14 @@ public interface SaleRepository extends JpaRepository<Sale, UUID> {
     BigDecimal sumTotalBetween(LocalDateTime from, LocalDateTime to);
 
     long countBySaleDateBetween(LocalDateTime from, LocalDateTime to);
+
+    // Salesperson filters
+    List<Sale> findAllBySalespersonUsernameOrderBySaleDateDesc(String salespersonUsername);
+    List<Sale> findAllBySalespersonUsernameAndSaleDateBetweenOrderBySaleDateDesc(String salespersonUsername, LocalDateTime from, LocalDateTime to);
+    @Query("select sum(s.price) from Sale s where s.salespersonUsername = :salesperson and s.saleDate between :from and :to")
+    BigDecimal sumTotalBySalespersonBetween(String salesperson, LocalDateTime from, LocalDateTime to);
+    long countBySalespersonUsernameAndSaleDateBetween(String salesperson, LocalDateTime from, LocalDateTime to);
+
+    @Query("select distinct s.salespersonUsername from Sale s order by s.salespersonUsername")
+    List<String> distinctSalespersons();
 }

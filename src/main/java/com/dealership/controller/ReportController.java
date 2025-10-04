@@ -32,7 +32,11 @@ public class ReportController {
     @GetMapping("/sales/summary")
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public SaleSummaryDto summary(@RequestParam(required = false) LocalDate from,
-                                  @RequestParam(required = false) LocalDate to) {
+                                  @RequestParam(required = false) LocalDate to,
+                                  @RequestParam(required = false) String salesperson) {
+        if (salesperson != null && !salesperson.isBlank()) {
+            return saleService.summaryRange(from, to, salesperson);
+        }
         if (from == null && to == null) return saleService.summary();
         return saleService.summaryBetween(from, to);
     }
@@ -40,16 +44,18 @@ public class ReportController {
     @GetMapping("/sales")
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
     public List<SaleDto> list(@RequestParam(required = false) LocalDate from,
-                              @RequestParam(required = false) LocalDate to) {
-        List<Sale> sales = (from == null && to == null) ? saleService.list() : saleService.listBetween(from, to);
+                              @RequestParam(required = false) LocalDate to,
+                              @RequestParam(required = false) String salesperson) {
+        List<Sale> sales = saleService.listRange(from, to, salesperson);
         return sales.stream().map(ReportController::toDto).toList();
     }
 
     @GetMapping(value = "/sales.csv", produces = "text/csv")
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
     public ResponseEntity<byte[]> exportCsv(@RequestParam(required = false) LocalDate from,
-                                            @RequestParam(required = false) LocalDate to) {
-        List<Sale> sales = (from == null && to == null) ? saleService.list() : saleService.listBetween(from, to);
+                                            @RequestParam(required = false) LocalDate to,
+                                            @RequestParam(required = false) String salesperson) {
+        List<Sale> sales = saleService.listRange(from, to, salesperson);
         StringBuilder sb = new StringBuilder();
         sb.append("saleDate,vin,make,model,year,customer,customerEmail,price,salesperson\n");
         for (Sale s : sales) {
@@ -74,14 +80,21 @@ public class ReportController {
     @GetMapping(value = "/sales.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
     public ResponseEntity<byte[]> exportPdf(@RequestParam(required = false) LocalDate from,
-                                            @RequestParam(required = false) LocalDate to) {
-        List<Sale> sales = (from == null && to == null) ? saleService.list() : saleService.listBetween(from, to);
-        SaleSummaryDto summary = (from == null && to == null) ? saleService.summary() : saleService.summaryBetween(from, to);
+                                            @RequestParam(required = false) LocalDate to,
+                                            @RequestParam(required = false) String salesperson) {
+        List<Sale> sales = saleService.listRange(from, to, salesperson);
+        SaleSummaryDto summary = saleService.summaryRange(from, to, salesperson);
         byte[] pdf = pdfService.generateSalesReport(sales, summary, from, to);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=sales-report.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
+    }
+
+    @GetMapping("/salespersons")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT')")
+    public List<String> listSalespersons() {
+        return saleService.listSalespersons();
     }
 
     private static String safe(String s) { return s == null ? "" : s; }

@@ -91,4 +91,41 @@ public class SaleService {
         long count = saleRepository.countBySaleDateBetween(f, t);
         return new SaleSummaryDto(count, revenue);
     }
+
+    // Salesperson-aware range listing
+    @Transactional(readOnly = true)
+    public List<Sale> listRange(LocalDate from, LocalDate to, String salesperson) {
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        if (salesperson == null || salesperson.isBlank()) {
+            if (from == null && to == null) return list();
+            return saleRepository.findAllBySaleDateBetweenOrderBySaleDateDesc(f, t);
+        }
+        if (from == null && to == null) return saleRepository.findAllBySalespersonUsernameOrderBySaleDateDesc(salesperson);
+        return saleRepository.findAllBySalespersonUsernameAndSaleDateBetweenOrderBySaleDateDesc(salesperson, f, t);
+    }
+
+    @Transactional(readOnly = true)
+    public SaleSummaryDto summaryRange(LocalDate from, LocalDate to, String salesperson) {
+        LocalDateTime f = from != null ? from.atStartOfDay() : LocalDate.MIN.atStartOfDay();
+        LocalDateTime t = to != null ? to.plusDays(1).atStartOfDay().minusNanos(1) : LocalDate.MAX.atTime(23,59,59,999_999_999);
+        BigDecimal revenue;
+        long count;
+        if (salesperson == null || salesperson.isBlank()) {
+            if (from == null && to == null) return summary();
+            revenue = saleRepository.sumTotalBetween(f, t);
+            if (revenue == null) revenue = BigDecimal.ZERO;
+            count = saleRepository.countBySaleDateBetween(f, t);
+        } else {
+            revenue = saleRepository.sumTotalBySalespersonBetween(salesperson, f, t);
+            if (revenue == null) revenue = BigDecimal.ZERO;
+            count = saleRepository.countBySalespersonUsernameAndSaleDateBetween(salesperson, f, t);
+        }
+        return new SaleSummaryDto(count, revenue);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<String> listSalespersons() {
+        return saleRepository.distinctSalespersons();
+    }
 }
