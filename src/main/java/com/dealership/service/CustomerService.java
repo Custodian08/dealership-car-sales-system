@@ -45,13 +45,19 @@ public class CustomerService {
 
     public Customer getOrThrow(UUID id) {
         return customerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Customer not found"));
+                .orElseThrow(() -> new NotFoundException("Клиент не найден"));
+    }
+
+    public Customer getByEmailOrThrow(String email) {
+        if (email == null || email.isBlank()) throw new NotFoundException("Email клиента не найден");
+        return customerRepository.findByEmail(email.trim())
+                .orElseThrow(() -> new NotFoundException("Email клиента не найден"));
     }
 
     @Transactional
     public Customer create(CustomerUpsertRequest req) {
         customerRepository.findByEmail(req.email()).ifPresent(c -> {
-            throw new IllegalStateException("Customer with email already exists");
+            throw new IllegalStateException("Клиент с таким email уже существует");
         });
         Customer c = new Customer();
         apply(c, req);
@@ -62,7 +68,7 @@ public class CustomerService {
     public Customer update(UUID id, CustomerUpsertRequest req) {
         Customer c = getOrThrow(id);
         customerRepository.findByEmail(req.email()).ifPresent(other -> {
-            if (!other.getId().equals(id)) throw new IllegalStateException("Email already used by another customer");
+            if (!other.getId().equals(id)) throw new IllegalStateException("Email уже используется другим клиентом");
         });
         apply(c, req);
         return customerRepository.save(c);
@@ -72,13 +78,13 @@ public class CustomerService {
     public void delete(UUID id) {
         Customer c = getOrThrow(id);
         if (reservationRepository.existsByCustomer_IdAndStatus(id, ReservationStatus.ACTIVE)) {
-            throw new IllegalStateException("Cannot delete customer with active reservation");
+            throw new IllegalStateException("Нельзя удалить клиента с активным резервом");
         }
         if (reservationRepository.existsByCustomer_Id(id)) {
-            throw new IllegalStateException("Cannot delete customer with reservation history");
+            throw new IllegalStateException("Нельзя удалить клиента с историей резервов");
         }
         if (saleRepository.existsByCustomer(c)) {
-            throw new IllegalStateException("Cannot delete customer with sales history");
+            throw new IllegalStateException("Нельзя удалить клиента с историей продаж");
         }
         customerRepository.delete(c);
     }

@@ -35,7 +35,7 @@ public class ReportController {
     }
 
     @GetMapping("/sales/summary")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST','SALESPERSON')")
     public SaleSummaryDto summary(@RequestParam(required = false) LocalDate from,
                                   @RequestParam(required = false) LocalDate to,
                                   @RequestParam(required = false) String salesperson) {
@@ -47,7 +47,7 @@ public class ReportController {
     }
 
     @GetMapping("/sales")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST','SALESPERSON')")
     public List<SaleDto> list(@RequestParam(required = false) LocalDate from,
                               @RequestParam(required = false) LocalDate to,
                               @RequestParam(required = false) String salesperson) {
@@ -62,7 +62,7 @@ public class ReportController {
                                             @RequestParam(required = false) String salesperson) {
         List<Sale> sales = saleService.listRange(from, to, salesperson);
         StringBuilder sb = new StringBuilder();
-        sb.append("saleDate,vin,make,model,year,customer,customerEmail,price,salesperson\n");
+        sb.append("дата,vin,марка,модель,год,покупатель,email,цена,продавец\n");
         for (Sale s : sales) {
             String customer = safe(s.getCustomer().getFirstName()) + " " + safe(s.getCustomer().getLastName());
             sb.append(s.getSaleDate()).append(',')
@@ -97,14 +97,14 @@ public class ReportController {
     }
 
     @GetMapping("/salespersons")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST','SALESPERSON')")
     public List<String> listSalespersons() {
         return saleService.listSalespersons();
     }
 
     // Top sellers report
     @GetMapping("/top-sellers")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','GUEST','SALESPERSON')")
     public List<TopSellerDto> topSellers(@RequestParam(required = false) LocalDate from,
                                          @RequestParam(required = false) LocalDate to) {
         return saleService.topSellers(from, to);
@@ -112,7 +112,7 @@ public class ReportController {
 
     // Inventory valuation report
     @GetMapping("/inventory/valuation")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','LISTER')")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE','ACCOUNTANT','LISTER','SALESPERSON')")
     public InventoryValuationDto inventoryValuation() {
         return vehicleService.inventoryValuation();
     }

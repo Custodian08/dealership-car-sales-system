@@ -52,13 +52,13 @@ public class SaleService {
     public Vehicle sell(UUID vehicleId, String customerEmail, BigDecimal price, String salespersonOverride) {
         Vehicle v = vehicleService.getOrThrow(vehicleId);
         if (v.getStatus() == VehicleStatus.SOLD) {
-            throw new IllegalStateException("Vehicle already sold");
+            throw new IllegalStateException("Автомобиль уже продан");
         }
         reservationRepository.findByVehicle_IdAndStatus(vehicleId, ReservationStatus.ACTIVE)
-                .ifPresent(rr -> { throw new IllegalStateException("Vehicle is reserved; cancel first"); });
+                .ifPresent(rr -> { throw new IllegalStateException("Автомобиль в резерве; сначала снимите резерв"); });
         Sale s = new Sale();
         s.setVehicle(v);
-        s.setCustomer(customerService.getOrCreate(customerEmail, "", ""));
+        s.setCustomer(customerService.getByEmailOrThrow(customerEmail));
         String actor = currentUserService.getCurrentUsername();
         String effectiveSalesperson;
         if (salespersonOverride != null && !salespersonOverride.isBlank()) {
@@ -91,7 +91,7 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public Sale getOrThrow(UUID id) {
-        return saleRepository.findById(id).orElseThrow(() -> new NotFoundException("Sale not found"));
+        return saleRepository.findById(id).orElseThrow(() -> new NotFoundException("Продажа не найдена"));
     }
 
     @Transactional(readOnly = true)
